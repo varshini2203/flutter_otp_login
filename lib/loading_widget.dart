@@ -5,8 +5,16 @@ class LoadingWidget extends StatelessWidget {
 
   final String text;
 
+  // ✅ Helper function to log actions
+  void logAction(String action) {
+    print("[ACTION LOG] $action at ${DateTime.now()}");
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Log when loading widget is built (displayed)
+    logAction("LoadingWidget displayed with text: '$text'");
+
     return Container(
       color: Colors.black.withOpacity(0.4),
       child: Center(
