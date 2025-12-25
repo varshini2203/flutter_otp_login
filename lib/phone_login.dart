@@ -24,26 +24,37 @@ class _PhoneLoginState extends State<PhoneLogin> {
   int timer = 60;
   Timer? _timer;
 
+  // ✅ Helper function to log actions
+  void logAction(String action) {
+    print("[ACTION LOG] $action at ${DateTime.now()}");
+  }
+
   // 🔹 SEND OTP
   Future<void> sendOTP() async {
-    if (phoneController.text.trim().isEmpty) return;
+    if (phoneController.text.trim().isEmpty) {
+      logAction("Send OTP failed: phone field is empty");
+      return;
+    }
 
     setState(() {
       loading = true;
     });
 
+    logAction("Sending OTP to +${selectedCountry.phoneCode}${phoneController.text.trim()}");
+
     await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber:
-      "+${selectedCountry.phoneCode}${phoneController.text.trim()}",
+      phoneNumber: "+${selectedCountry.phoneCode}${phoneController.text.trim()}",
       timeout: const Duration(seconds: 60),
 
       verificationCompleted: (credential) async {
+        logAction("Auto-verification completed");
         await FirebaseAuth.instance.signInWithCredential(credential);
         goHome();
       },
 
       verificationFailed: (e) {
         setState(() => loading = false);
+        logAction("OTP verification failed: ${e.message}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? "Verification failed")),
         );
@@ -56,10 +67,12 @@ class _PhoneLoginState extends State<PhoneLogin> {
           loading = false;
           startTimer();
         });
+        logAction("OTP sent successfully, verificationId: $vid");
       },
 
       codeAutoRetrievalTimeout: (vid) {
         verificationId = vid;
+        logAction("Code auto retrieval timeout, verificationId: $vid");
       },
     );
   }
@@ -68,6 +81,7 @@ class _PhoneLoginState extends State<PhoneLogin> {
   Future<void> verifyOTP() async {
     try {
       setState(() => loading = true);
+      logAction("Verifying OTP: ${otpController.text.trim()}");
 
       final credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
@@ -75,9 +89,11 @@ class _PhoneLoginState extends State<PhoneLogin> {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+      logAction("OTP verification successful");
       goHome();
     } catch (e) {
       setState(() => loading = false);
+      logAction("OTP verification failed: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Invalid OTP")),
       );
@@ -91,13 +107,16 @@ class _PhoneLoginState extends State<PhoneLogin> {
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (timer == 0) {
         t.cancel();
+        logAction("OTP timer expired");
       } else {
         setState(() => timer--);
       }
     });
+    logAction("OTP timer started for 60 seconds");
   }
 
   void goHome() {
+    logAction("Navigating to HomePage");
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const HomePage()),
@@ -109,11 +128,14 @@ class _PhoneLoginState extends State<PhoneLogin> {
     phoneController.dispose();
     otpController.dispose();
     _timer?.cancel();
+    logAction("PhoneLogin disposed");
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    logAction("PhoneLogin built");
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -172,6 +194,7 @@ class _PhoneLoginState extends State<PhoneLogin> {
                                   setState(() {
                                     selectedCountry = country;
                                   });
+                                  logAction("Country selected: ${country.name}, +${country.phoneCode}");
                                 },
                               );
                             },
@@ -203,6 +226,9 @@ class _PhoneLoginState extends State<PhoneLogin> {
                                 hintText: "Mobile Number",
                                 border: OutlineInputBorder(),
                               ),
+                              onChanged: (value) {
+                                logAction("Phone number input changed: $value");
+                              },
                             ),
                           ),
                         ],
@@ -219,6 +245,9 @@ class _PhoneLoginState extends State<PhoneLogin> {
                             hintText: "Enter OTP",
                             border: OutlineInputBorder(),
                           ),
+                          onChanged: (value) {
+                            logAction("OTP input changed: $value");
+                          },
                         ),
 
                       const SizedBox(height: 25),
