@@ -5,19 +5,28 @@ import 'login_page.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+
+  void logAction(String action) {
+    print("[ACTION LOG] $action at ${DateTime.now()}");
+  }
+
   Future<void> _logout(BuildContext context) async {
+    logAction("Logout button tapped");
     await FirebaseAuth.instance.signOut();
+    logAction("User signed out successfully");
 
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
           (route) => false,
     );
+    logAction("Navigated to LoginPage after logout");
   }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    logAction("ProfilePage built for user: ${user?.email ?? user?.phoneNumber ?? 'Unknown'}");
 
     return Scaffold(
       body: Container(
@@ -42,13 +51,16 @@ class ProfilePage extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      logAction("Back button tapped, navigated back");
+                    },
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // 👤 PROFILE AVATAR
+
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: const BoxDecoration(
@@ -172,6 +184,7 @@ class ProfilePage extends StatelessWidget {
     required String value,
     bool small = false,
   }) {
+    logAction("Displaying info tile: $label = $value");
     return ListTile(
       leading: Icon(icon, color: Colors.deepPurple),
       title: Text(
