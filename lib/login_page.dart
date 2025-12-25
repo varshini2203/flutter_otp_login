@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'phone_login.dart';
 import 'google_login.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
+  // ✅ Helper function to log actions
+  void logAction(String action) {
+    print("[ACTION LOG] $action at ${DateTime.now()}");
+  }
+
   @override
   Widget build(BuildContext context) {
+    logAction("LoginPage built");
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -15,9 +23,9 @@ class LoginPage extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF833AB4), // Instagram purple
-              Color(0xFFFD1D1D), // Instagram red
-              Color(0xFFFCAF45), // Instagram orange
+              Color(0xFF833AB4), // Purple
+              Color(0xFFFD1D1D), // Red
+              Color(0xFFFCAF45), // Orange
             ],
           ),
         ),
@@ -44,7 +52,7 @@ class LoginPage extends StatelessWidget {
 
               // 🔹 TITLE
               const Text(
-                "Welcome Back",
+                "Welcome",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -64,7 +72,7 @@ class LoginPage extends StatelessWidget {
 
               const SizedBox(height: 60),
 
-              // 🔳 WHITE CARD
+
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -79,7 +87,7 @@ class LoginPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 📱 OTP LOGIN BUTTON
+                      // 📱 OTP LOGIN
                       SizedBox(
                         width: double.infinity,
                         height: 56,
@@ -101,12 +109,13 @@ class LoginPage extends StatelessWidget {
                             ),
                           ),
                           onPressed: () {
+                            logAction("OTP Login button tapped");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => const PhoneLogin(),
                               ),
-                            );
+                            ).then((_) => logAction("Returned from PhoneLogin"));
                           },
                         ),
                       ),
@@ -156,13 +165,29 @@ class LoginPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(18),
                             ),
                           ),
-                          onPressed: () => signInWithGoogle(context),
+                          onPressed: () async {
+                            logAction("Google Login button tapped");
+                            final user =
+                            await GoogleLogin.signInWithGoogle(context);
+
+                            if (user != null && context.mounted) {
+                              logAction("Google Login successful for user: ${user.email}");
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const HomePage(),
+                                ),
+                              );
+                            } else {
+                              logAction("Google Login failed or cancelled");
+                            }
+                          },
                         ),
                       ),
 
                       const SizedBox(height: 45),
 
-                      // 🔒 FOOTER TEXT
+
                       const Text(
                         "Your data is protected with Firebase 🔒",
                         style: TextStyle(
