@@ -93,9 +93,9 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // 🔹 WELCOME TEXT
+
                 const Text(
-                  "Welcome Back 🎉",
+                  "Welcome 🎉",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -115,7 +115,7 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // 🔹 WHITE INFO CARD
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -160,7 +160,7 @@ class HomePage extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // 🔴 LOGOUT BUTTON
+
                 SizedBox(
                   width: double.infinity,
                   height: 55,
